@@ -201,7 +201,7 @@ def main(argv=None):  # pylint: disable=unused-argument
   def eval_batches(data ,labels):
     size = data.shape[0]
     error = 0
-    for step in xrange(math.ceil(size/EVAL_BATCH_SIZE)):
+    for step in xrange(int(math.ceil(size/EVAL_BATCH_SIZE))):
       lowerLimit = ((step) * EVAL_BATCH_SIZE)
       upperLimit = ((step+1) * EVAL_BATCH_SIZE)
       if(upperLimit>size):
