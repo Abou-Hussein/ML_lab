@@ -264,10 +264,9 @@ def main(argv=None):  # pylint: disable=unused-argument
         # your hyperparameters/network architecture, only look at the validation error to avoid
         # overfitting. Only calculate the test error in the very end for your best model!
         # if test_this_model_after_training:
-    # Putting data in Pickles to save them
-    pickle.dump(train_error_list, open("train.p", "wb"))
-    pickle.dump(plot_step, open("plot.p", "wb"))
-    pickle.dump(validation_error_list, open("validation.p", "wb"))
+    pickle.dump(train_error_list, open("train_D.p", "wb"))
+    pickle.dump(plot_step, open("plot_D.p", "wb"))
+    pickle.dump(validation_error_list, open("validation_D.p", "wb"))
     test_error = eval_batches(test_data, test_labels)
     print('Test error: {}'.format(test_error))
 
@@ -281,7 +280,7 @@ if __name__ == '__main__':
   )
   parser.add_argument(
       '--self_test',
-      default=False,
+      default=True,
       action='store_true',
       help='True if running a self test.'
   )
