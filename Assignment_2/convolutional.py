@@ -47,11 +47,11 @@ NUM_EPOCHS = 30
 EVAL_BATCH_SIZE = 1024
 EVAL_FREQUENCY = 100  # Number of steps between evaluations.
 # This is where the data gets stored
-TRAIN_DIR = 'data'
+#TRAIN_DIR = 'data'
 # HINT:
 # if you are working on the computers in the pool and do not want
 # to download all the data you can use the pre-loaded data like this:
-#TRAIN_DIR = '/home/mllect/data/rgbd'
+TRAIN_DIR = '/home/mllect/data/rgbd'
 
 
 def data_type():
