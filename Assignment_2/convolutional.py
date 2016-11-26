@@ -31,10 +31,11 @@ from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 #from sklearn.metrics import confusion_matrix
 
 import input_data
-
 
 # DONE
 # These are some useful constants that you can use in your code.
