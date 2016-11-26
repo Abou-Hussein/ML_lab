@@ -30,15 +30,15 @@ import numpy as np
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+import matplotlib.pyplot as plt
 #from sklearn.metrics import confusion_matrix
 
 import input_data
 
 
-# TODO
+# DONE
 # These are some useful constants that you can use in your code.
-# Feel free to ignore them or change them.
-# TODO 
+# Feel free to ignore them or change them. 
 IMAGE_SIZE = 32
 NUM_LABELS = 10
 SEED = 66478  # Set to None for random seed.
@@ -47,11 +47,11 @@ NUM_EPOCHS = 30
 EVAL_BATCH_SIZE = 1024
 EVAL_FREQUENCY = 100  # Number of steps between evaluations.
 # This is where the data gets stored
-#TRAIN_DIR = 'data'
+TRAIN_DIR = 'data'
 # HINT:
 # if you are working on the computers in the pool and do not want
 # to download all the data you can use the pre-loaded data like this:
-TRAIN_DIR = '/home/mllect/data/rgbd'
+#TRAIN_DIR = '/home/mllect/data/rgbd'
 
 
 def data_type():
@@ -111,7 +111,7 @@ def main(argv=None):  # pylint: disable=unused-argument
 
   train_size = train_labels.shape[0]
 
-  # TODO:
+  # DONE:
   # After this you should define your network and train it.
   # Below you find some starting hints. For more info have
   # a look at online tutorials for tensorflow:
@@ -125,7 +125,6 @@ def main(argv=None):  # pylint: disable=unused-argument
   # also load the dataset with NUM_CHANNELS=3 to only get an RGB version.
   # A good additional experiment to run would be to cmompare how much
   # you can gain by adding the depth channel (how much better the classifier can get)
-  # TODO:
   
   # This is where training samples and labels are fed to the graph.
   # These placeholder nodes will be fed a batch of training data at each
@@ -162,18 +161,19 @@ def main(argv=None):  # pylint: disable=unused-argument
 
   ## Define the first convolutional neural network layer
   CONV_LAYER1_FEAT = 32
-  W1 = weight_variable([5, 5, NUM_CHANNELS, CONV_LAYER1_FEAT])
+  W1 = weight_variable([6, 6, NUM_CHANNELS, CONV_LAYER1_FEAT])
   b1 = bias_variable([CONV_LAYER1_FEAT])
   ## Define the second convolutional neural network layer
   CONV_LAYER2_FEAT = 64
-  W2 = weight_variable([5, 5, CONV_LAYER1_FEAT, CONV_LAYER2_FEAT])
+  W2 = weight_variable([6, 6, CONV_LAYER1_FEAT, CONV_LAYER2_FEAT])
   b2 = bias_variable([CONV_LAYER2_FEAT])
 
-  W_fc1 = weight_variable([int(math.pow(IMAGE_SIZE//4, 2) * CONV_LAYER2_FEAT), 512])
-  b_fc1 = bias_variable([512])
-  W_fc2 = weight_variable([512, NUM_LABELS])
+  W_fc1 = weight_variable([int(math.pow(IMAGE_SIZE//4, 2) * CONV_LAYER2_FEAT), 1024])
+  b_fc1 = bias_variable([1024])
+  W_fc2 = weight_variable([1024, NUM_LABELS])
   b_fc2 = bias_variable([NUM_LABELS])
-    
+  
+  # Define model to be used for train and validation
   def model(data):
     h_conv1 = tf.nn.relu(conv2d(data, W1) + b1)    
     h_pool1 = max_pool_2x2(h_conv1)
@@ -191,13 +191,16 @@ def main(argv=None):  # pylint: disable=unused-argument
       # HINT: you can use the various optimizers implemented in TensorFlow.
       #       For example, google for: tf.train.AdamOptimizer()
   train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
-  correct_prediction = tf.equal(tf.argmax(model(train_data_node),1), train_labels_node)
+  train_softmax = tf.nn.softmax(model(train_data_node))
+  validation_softmax = tf.nn.softmax(model(eval_data))
+  correct_prediction = tf.equal(tf.argmax(train_softmax,1), train_labels_node)
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
   error = 1 - accuracy
-  eval_correct_prediction = tf.equal(tf.argmax(model(eval_data),1), eval_labels)
+  eval_correct_prediction = tf.equal(tf.argmax(validation_softmax,1), eval_labels)
   eval_accuracy  = tf.reduce_mean(tf.cast(eval_correct_prediction, tf.float32))
   eval_error = 1 - eval_accuracy
   
+  # Function to evaluate error of batches
   def eval_batches(data ,labels):
     size = data.shape[0]
     error = 0
@@ -213,19 +216,20 @@ def main(argv=None):  # pylint: disable=unused-argument
       error = error + validation_error
     return error/(step+1)
 
-  # TODO
+  # DONE:
   # Make sure you also define a function for evaluating on the validation
   # set so that you can track performance over time
-  # TODO
-  print("-1")
+
   # Create a local session to run the training.
   with tf.Session() as sess:
-    # TODO
+    # DONE
     # Make sure you initialize all variables before starting the tensorflow training
-    # TODO
-    print("first")
     sess.run(tf.initialize_all_variables())
     counter = 0
+    plot_step = []
+    train_error_list = []
+    validation_error_list = []
+
     for step in xrange((num_epochs * train_size) // BATCH_SIZE):
         lowerLimit = ((counter) * BATCH_SIZE) % (train_size)
         upperLimit = ((counter+1) * BATCH_SIZE) % (train_size)
@@ -236,10 +240,7 @@ def main(argv=None):  # pylint: disable=unused-argument
         counter += 1
         batch_data = train_data[lowerLimit:upperLimit,]
         batch_label =  train_labels[lowerLimit:upperLimit]
-        #print(lowerLimit, "    ", upperLimit)
-        #print("Second")
-        #print(batch_label)
-        #print(" end ")
+
         train_step.run(feed_dict={train_data_node: batch_data, train_labels_node: batch_label})
         # Loop through training steps here
         # HINT: always use small batches for training (as in SGD in your last exercise)
@@ -252,18 +253,10 @@ def main(argv=None):  # pylint: disable=unused-argument
         #print("print")
         if step % EVAL_FREQUENCY == 0:
           train_error = error.eval(feed_dict={train_data_node: batch_data, train_labels_node: batch_label})
-          # lowerLimit = ((step//EVAL_FREQUENCY) * EVAL_BATCH_SIZE) % (eval_size)
-          # upperLimit = (((step//EVAL_FREQUENCY)+1) * EVAL_BATCH_SIZE) % (eval_size)
-          # if(upperLimit<lowerLimit):
-          #   upperLimit = eval_size
-          #   lowerLimit = eval_size - EVAL_BATCH_SIZE
-          #   batch_vdata = train_data[lowerLimit:upperLimit,]
-          #   batch_vlabel =  train_labels[lowerLimit:upperLimit]
-          #   batches = BATCH_SIZE
-
-          #   batches = EVAL_BATCH_SIZE
           validation_error = eval_batches(validation_data, validation_labels)
-          #print('Minibatch loss: {}'.format(loss))
+          train_error_list.append(train_error)
+          validation_error_list.append(validation_error)
+          plot_step.append(int(step/100))
           print('Train error: ', train_error )
           print('Validation error: {}'.format(validation_error))
 
@@ -272,11 +265,15 @@ def main(argv=None):  # pylint: disable=unused-argument
         # your hyperparameters/network architecture, only look at the validation error to avoid
         # overfitting. Only calculate the test error in the very end for your best model!
         # if test_this_model_after_training:
+    plt.plot(plot_step, train_error_list, label="Training")
+    plt.plot(plot_step, validation_error_list, label="Validation")
+    plt.xlabel("steps / 100")
+    plt.ylabel("Error")
+    plt.legend(loc="best")
+    plt.show()
+    plt.savefig("train_validation_plot.pdf")
     test_error = eval_batches(test_data, test_labels)
     print('Test error: {}'.format(test_error))
-        #     print('Confusion matrix:') 
-        #     # NOTE: the following will require scikit-learn
-        #     print(confusion_matrix(test_labels, np.argmax(eval_in_batches(test_data, sess), 1)))
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
