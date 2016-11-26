@@ -274,13 +274,13 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument(
       '--use_rgbd',
-      default=False,
+      default=True,
       help='Use rgb-d input data (4 channels).',
       action='store_true'
   )
   parser.add_argument(
       '--self_test',
-      default=True,
+      default=False,
       action='store_true',
       help='True if running a self test.'
   )
