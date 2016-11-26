@@ -30,9 +30,7 @@ import numpy as np
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
-import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
+import cPickle as pickle
 #from sklearn.metrics import confusion_matrix
 
 import input_data
@@ -266,13 +264,10 @@ def main(argv=None):  # pylint: disable=unused-argument
         # your hyperparameters/network architecture, only look at the validation error to avoid
         # overfitting. Only calculate the test error in the very end for your best model!
         # if test_this_model_after_training:
-    plt.plot(plot_step, train_error_list, label="Training")
-    plt.plot(plot_step, validation_error_list, label="Validation")
-    plt.xlabel("steps / 100")
-    plt.ylabel("Error")
-    plt.legend(loc="best")
-    plt.show()
-    plt.savefig("train_validation_plot.pdf")
+    # Putting data in Pickles to save them
+    pickle.dump(train_error_list, open("train.p", "wb"))
+    pickle.dump(plot_step, open("plot.p", "wb"))
+    pickle.dump(validation_error_list, open("validation.p", "wb"))
     test_error = eval_batches(test_data, test_labels)
     print('Test error: {}'.format(test_error))
 
