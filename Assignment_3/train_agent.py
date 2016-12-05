@@ -6,7 +6,7 @@ from utils     import Options
 from simulator import Simulator
 from transitionTable import TransitionTable
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Convolution2D, MaxPooling2D, Dropout, Flatten
+from keras.layers import Dense, Activation, Convolution2D, Convolution1D, MaxPooling1D, Dropout, Flatten
 
 class cnn_model:
 	def __init__(self):
@@ -54,18 +54,18 @@ valid_data = trans.get_valid()
 
 # Create cnn
 print(train_data[0].shape)
-cnn_m.model.add(Convolution2D(32, 3, 3, border_mode='same', input_shape=train_data[0].shape))
+cnn_m.model.add(Convolution1D(32, 3, border_mode='same', input_shape=train_data[0].shape))
 cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(Convolution2D(32, 1, 3))
+cnn_m.model.add(Convolution1D(32, 3))
 cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(MaxPooling2D(pool_size=(1, 2)))
+cnn_m.model.add(MaxPooling1D(pool_length=(2)))
 cnn_m.model.add(Dropout(0.25))
 
-cnn_m.model.add(Convolution2D(64, 1, 3, border_mode='same'))
+cnn_m.model.add(Convolution1D(64, 3, border_mode='same'))
 cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(Convolution2D(64, 1, 3))
+cnn_m.model.add(Convolution1D(64, 3))
 cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(MaxPooling2D(pool_size=(1, 2)))
+cnn_m.model.add(MaxPooling1D(pool_length=(2)))
 cnn_m.model.add(Dropout(0.25))
 
 cnn_m.model.add(Flatten())
