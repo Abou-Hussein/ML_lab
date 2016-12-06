@@ -6,7 +6,8 @@ from utils     import Options
 from simulator import Simulator
 from transitionTable import TransitionTable
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Convolution2D, Convolution1D, MaxPooling1D, Dropout, Flatten
+from keras.layers import Dense, Activation, Convolution2D, Convolution1D, MaxPooling1D, MaxPooling2D, Dropout, Flatten
+from keras.utils import np_utils
 
 class cnn_model:
 	def __init__(self):
@@ -47,26 +48,38 @@ cnn_m = cnn_model()
 train_data = trans.get_train()
 valid_data = trans.get_valid()
 
+x = train_data[0].copy()
+y = train_data[1].copy()
 
+x_val = valid_data[0].copy()
+y_val = valid_data[1].copy()
+
+y = y.astype(int)
+x = x.reshape(x.shape[0], 1, x.shape[1], 1)
+print(y_val)
+print("xxxxxxxxxxx")
+y_val = y_val.astype(int)
+print(y_val)
+x_val = x_val.reshape(x_val.shape[0], 1, x_val.shape[1], 1)
 
 # Initialize keras model
 # model = Sequential()
 
 # Create cnn
 print(train_data[0].shape)
-cnn_m.model.add(Convolution1D(32, 3, border_mode='same', input_shape=train_data[0].shape))
+cnn_m.model.add(Convolution2D(64, 3, 1, border_mode='same', input_shape=(1, 2500, 1)))
 cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(Convolution1D(32, 3))
+cnn_m.model.add(Convolution2D(32, 3, 1, border_mode='same'))
 cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(MaxPooling1D(pool_length=(2)))
+cnn_m.model.add(MaxPooling2D(pool_size=(1, 2)))
 cnn_m.model.add(Dropout(0.25))
 
-cnn_m.model.add(Convolution1D(64, 3, border_mode='same'))
-cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(Convolution1D(64, 3))
-cnn_m.model.add(Activation('relu'))
-cnn_m.model.add(MaxPooling1D(pool_length=(2)))
-cnn_m.model.add(Dropout(0.25))
+# cnn_m.model.add(Convolution1D(64, 3, border_mode='same'))
+# cnn_m.model.add(Activation('relu'))
+# cnn_m.model.add(Convolution1D(64, 3))
+# cnn_m.model.add(Activation('relu'))
+# cnn_m.model.add(MaxPooling1D(pool_length=(2)))
+# cnn_m.model.add(Dropout(0.25))
 
 cnn_m.model.add(Flatten())
 cnn_m.model.add(Dense(512))
@@ -88,15 +101,16 @@ self.model.add(Activation("softmax"))
 cnn_m.model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
 # Define values for SGD optimizer
-from keras.optimizers import SGD
-cnn_m.model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.01, momentum=0.9, nesterov=True))
+# from keras.optimizers import SGD
+# cnn_m.model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.01, momentum=0.9, nesterov=True))
 
 # Fit the model to the training data
-cnn_m.model.fit(train_data[0], train_data[1], nb_epoch=20, batch_size=32)
+cnn_m.model.fit(x, y, nb_epoch=20, batch_size=32, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
 
 # Compute loss metrics for the current model i.e, training error
-cnn_m.model.loss_and_metrics = cnn_m.model.evaluate(valid_data[0], valid_data[1], batch_size=32)
-print("Valid error: ", cnn_m.model.loss_and_metrics)
+# cnn_m.model.loss_and_metrics = cnn_m.model.evaluate(valid_data[0], valid_data[1], batch_size=32)
+# print("Valid error: ", cnn_m.model.loss_and_metrics)
+
 
 
 
