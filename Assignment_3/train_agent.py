@@ -8,6 +8,8 @@ from transitionTable import TransitionTable
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Convolution2D, Convolution1D, MaxPooling1D, MaxPooling2D, Dropout, Flatten
 from keras.utils import np_utils
+from keras.models import model_from_json
+import os
 
 class cnn_model:
 	def __init__(self):
@@ -105,11 +107,19 @@ cnn_m.model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['
 # cnn_m.model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.01, momentum=0.9, nesterov=True))
 
 # Fit the model to the training data
-cnn_m.model.fit(x, y, nb_epoch=20, batch_size=32, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
+cnn_m.model.fit(x, y, nb_epoch=1, batch_size=64, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
 
 # Compute loss metrics for the current model i.e, training error
 # cnn_m.model.loss_and_metrics = cnn_m.model.evaluate(valid_data[0], valid_data[1], batch_size=32)
 # print("Valid error: ", cnn_m.model.loss_and_metrics)
+
+# serialize model to JSON
+model_json = cnn_m.model.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+cnn_m.model.save_weights("model.h5")
+print("Saved model to disk")
 
 
 
