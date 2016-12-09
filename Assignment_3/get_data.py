@@ -36,8 +36,8 @@ for step in range(opt.data_steps):
 
     epi_step += 1
 
-    if step % opt.prog_freq == 0:
-        print step
+    if step % 5 == 0:#opt.prog_freq == 0:
+        print(step)
 
     if opt.disp_on:
         if win_all is None:
@@ -53,8 +53,9 @@ for step in range(opt.data_steps):
         pl.draw()
 
 # 2. save to disk
-print 'saving data ...'
+print('saving data ...')
+print(states.shape)
 np.savetxt(opt.states_fil, states, delimiter=',')
 np.savetxt(opt.labels_fil, labels, delimiter=',')
-print "states saved to " + opt.states_fil
-print "labels saved to " + opt.labels_fil
+print("states saved to " + opt.states_fil)
+print("labels saved to " + opt.labels_fil)

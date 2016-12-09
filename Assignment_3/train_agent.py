@@ -1,5 +1,8 @@
 import numpy as np
 import tensorflow as tf
+import os
+import matplotlib.pyplot as plt
+import numpy
 
 # custom modules
 from utils     import Options
@@ -9,7 +12,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Convolution2D, Convolution1D, MaxPooling1D, MaxPooling2D, Dropout, Flatten
 from keras.utils import np_utils
 from keras.models import model_from_json
-import os
+
 
 class cnn_model:
 	def __init__(self):
@@ -33,7 +36,7 @@ cnn_m = cnn_model()
 
 # 1. train
 ######################################
-# TODO implement your training here!
+# DONE implement your training here!
 # you can get the full data from the transition table like this:
 #
 # # both train_data and valid_data contain tupes of images and labels
@@ -58,10 +61,7 @@ y_val = valid_data[1].copy()
 
 y = y.astype(int)
 x = x.reshape(x.shape[0], 1, x.shape[1], 1)
-print(y_val)
-print("xxxxxxxxxxx")
 y_val = y_val.astype(int)
-print(y_val)
 x_val = x_val.reshape(x_val.shape[0], 1, x_val.shape[1], 1)
 
 # Initialize keras model
@@ -102,17 +102,10 @@ self.model.add(Activation("softmax"))
 # Define attributes of the cnn; categorial, optimizer_type, performance metrics
 cnn_m.model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
-# Define values for SGD optimizer
-# from keras.optimizers import SGD
-# cnn_m.model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.01, momentum=0.9, nesterov=True))
-
 # Fit the model to the training data
-cnn_m.model.fit(x, y, nb_epoch=1, batch_size=64, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
+history = cnn_m.model.fit(x, y, nb_epoch=20, batch_size=32, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
 
-# Compute loss metrics for the current model i.e, training error
-# cnn_m.model.loss_and_metrics = cnn_m.model.evaluate(valid_data[0], valid_data[1], batch_size=32)
-# print("Valid error: ", cnn_m.model.loss_and_metrics)
-
+# 2. save your trained model
 # serialize model to JSON
 model_json = cnn_m.model.to_json()
 with open("model.json", "w") as json_file:
@@ -121,10 +114,23 @@ with open("model.json", "w") as json_file:
 cnn_m.model.save_weights("model.h5")
 print("Saved model to disk")
 
-
-
-
-
-# 2. save your trained model
+# list all data in history
+print(history.history.keys())
+# summarize history for accuracy
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
 
 

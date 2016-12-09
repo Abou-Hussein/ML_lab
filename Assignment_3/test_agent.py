@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 from random import randrange
 import tensorflow as tf
 from transitionTable import TransitionTable
+
 # custom modules
-from utils     import Options
+from utils     import Options, rgb2gray
 from simulator import Simulator
 from keras.models import Sequential
 from keras.models import model_from_json
@@ -46,21 +47,20 @@ for step in range(opt.eval_steps):
             nepisodes_solved += 1
         # start a new game
         state = sim.newGame(opt.tgt_y, opt.tgt_x)
-        cur = trans.get_recent()[(hist_len-1)*625:]
-        trans.add_recent(epi_step, cur)
     else:
-        x = trans.get_recent()
-        x = x.reshape(x.shape[0], 1, x.shape[1], 1)
-        action = ml.predict(x, batch_size = 32, verbose =0)
-        print(action)
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # TODO: here you would let your agent take its action
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # this just gets a random action
         #action = randrange(opt.act_num)
-        state = sim.step(action)
-        cur = trans.get_recent()[(hist_len-1)*625:]
-        trans.add_recent(epi_step, cur)
+        #states[step, :] = rgb2gray(state.pob).reshape(opt.state_siz)
+        #labels[step]    = state.action
+        trans.add_recent(epi_step, rgb2gray(state.pob).reshape(opt.state_siz))
+        x = trans.get_recent()
+        x = x.reshape(x.shape[0], 1, x.shape[1], 1)
+        action = ml.predict(x, batch_size=32, verbose=0)
+        state = sim.step(np.argmax(action))
+
 
         epi_step += 1
 

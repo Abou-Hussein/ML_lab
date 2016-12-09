@@ -19,7 +19,7 @@ class TransitionTable:
         self.recent_states = np.zeros([self.hist_len, self.state_siz])
 
     def __del__(self):
-        print "Garbage collected."
+        print("Garbage collected.")
 
     # helper funcs
 
@@ -62,15 +62,17 @@ class TransitionTable:
     def load_data(self):
         self.states = np.loadtxt(self.states_fil, delimiter=',')
         self.labels = np.loadtxt(self.labels_fil, delimiter=',').astype("int")
+        print("ay 5ara ", self.states.shape)
+        print("ay 5ara tany ", self.labels.shape)
         assert self.states.shape[0] == self.labels.shape[0]
         self.size   = self.states.shape[0]
         self.minibatchNum = int(self.size - self.valid_size) / int(self.minibatch_size)
         self.minibatchInd = None
         self.stack_hist()
-        print "states & labels loaded."
-        print "states stacked w/ history of", self.hist_len
+        print("states & labels loaded.")
+        print("states stacked w/ history of", self.hist_len)
         self.split_train_valid()
-        print "train & valid data splited."
+        print("train & valid data splited.")
 
     def split_train_valid(self):
         train_size = self.size - self.valid_size
