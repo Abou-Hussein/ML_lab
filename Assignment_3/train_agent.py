@@ -103,7 +103,7 @@ self.model.add(Activation("softmax"))
 cnn_m.model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
 # Fit the model to the training data
-history = cnn_m.model.fit(x, y, nb_epoch=20, batch_size=32, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
+history = cnn_m.model.fit(x, y, nb_epoch=20, batch_size=64, show_accuracy=True, validation_data=(x_val, y_val), shuffle=True)
 
 # 2. save your trained model
 # serialize model to JSON
